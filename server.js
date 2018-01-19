@@ -1,14 +1,11 @@
-var fs = require('fs')
-var path = require('path')
 var http = require('http')
-var https = require('https')
 var express = require('express')
 var helmet = require('helmet')
 var cors = require('cors')
 var bodyParser = require('body-parser')
 var parallel = require('run-parallel')
-var request = require('request-promise-native')
 var parser = require('rss-parser')
+var { URL } = require('URL')
 
 const PORT = 5823
 
@@ -17,11 +14,14 @@ var app = express()
 app.use(helmet())
 app.use(cors())
 app.use(bodyParser.json({ limit: '50mb' }))
+app.get('/', async function (req, res) {
+  res.end('cool')
+})
 app.post('/stream', async function (req, res) {
   var sources = req.body.sources
-         
+
   fetchFeeds(sources, function (feeds) {
-      res.send(feeds)
+    res.send(feeds)
   })
 })
 
@@ -33,9 +33,11 @@ function fetchFeeds (sources, callback) {
   var jobs = sources.map(fetchingJob)
 
   parallel(jobs, function (feeds) {
-    var entries = entries.reduce(concat).sort(sortByDate)
+    var entries = feeds
+      .reduce((a, b) => a.concat(b), [])
+      .sort(sortByDate)
 
-    callback(feeds)
+    callback(entries)
   })
 }
 
@@ -44,7 +46,7 @@ function fetchingJob (source) {
   return function (done) {
     try {
       var url = new URL(source)
-      parser.parseURL(url.href, function (err, parsed) {
+      parser.parseURL(url, function (err, parsed) {
         if (err) return console.error(err)
         parsed.feed.entries.forEach(entry => {
           entry.date = new Date(entry.isoDate)
