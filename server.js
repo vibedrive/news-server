@@ -48,18 +48,20 @@ function fetchingJob (source) {
   return function (done) {
     try {
       var u = new url.URL(source)
-      parser.parseURL(u, function (err, parsed) {
-        if (err) return console.error(err)
-        parsed.feed.entries.forEach(entry => {
-          entry.date = new Date(entry.isoDate)
-          entries.push(entry)
-        })
-
-        done(entries)
-      })
     } catch (err) {
       console.info(err)
+      done([])
     }
+
+    parser.parseURL(source, function (err, parsed) {
+      if (err) return console.error(err)
+      parsed.feed.entries.forEach(entry => {
+        entry.date = new Date(entry.isoDate)
+        entries.push(entry)
+      })
+
+      done(entries)
+    })
   }
 }
 
