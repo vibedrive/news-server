@@ -15,7 +15,7 @@ app.use(helmet())
 app.use(cors())
 app.use(bodyParser.json())
 
-app.get('/', async function (req, res) {
+app.get('/', function (req, res) {
   res.status(200).end('cool')
 })
 
