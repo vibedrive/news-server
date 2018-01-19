@@ -14,7 +14,9 @@
     "helmet": "^3.9.0",
     "cors": "^2.8.4",
     "body-parser": "^1.18.2",
-    "semver": "^5.5.0"
+    "run-parallel": "^1.1.6",
+    "semver": "^5.5.0",
+    "request": "^2.83.0"
   },
   "engines": {
     "node": "8.x"
