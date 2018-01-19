@@ -1,39 +1,65 @@
-// server.js
-// where your node app starts
+var fs = require('fs')
+var path = require('path')
+var http = require('http')
+var https = require('https')
+var express = require('express')
+var helmet = require('helmet')
+var cors = require('cors')
+var bodyParser = require('body-parser')
+var request = require('request-promise-native')
 
-// init project
-var express = require('express');
-var app = express();
+const PORT = 5823
 
-// we've started you off with Express, 
-// but feel free to use whatever libs or frameworks you'd like through `package.json`.
+var app = express()
 
-// http://expressjs.com/en/starter/static-files.html
-app.use(express.static('public'));
+app.use(helmet())
+app.use(cors())
+app.use(bodyParser.json({ limit: '50mb' }))
+app.post('/stream', async function (req, res) => {
+  var sources = req.body.sources
+        
+  res.send()
+  
+         
+})
 
-// http://expressjs.com/en/starter/basic-routing.html
-app.get("/", function (request, response) {
-  response.sendFile(__dirname + '/views/index.html');
-});
+http.createServer(app).listen(PORT)
 
-app.get("/dreams", function (request, response) {
-  response.send(dreams);
-});
+console.log('Listening on port', PORT)
 
-// could also use the POST body instead of query string: http://expressjs.com/en/api.html#req.body
-app.post("/dreams", function (request, response) {
-  dreams.push(request.query.dream);
-  response.sendStatus(200);
-});
+function fetchFeeds () {
+  var jobs = state.sources.map(fetchingJob)
 
-// Simple in-memory store for now
-var dreams = [
-  "Find and count some sheep",
-  "Climb a really tall mountain",
-  "Wash the dishes"
-];
+  parallel(jobs, function () {
+    state.entries.sort(sortByDate)
+    state.fetching = false
 
-// listen for requests :)
-var listener = app.listen(process.env.PORT, function () {
-  console.log('Your app is listening on port ' + listener.address().port);
-});
+    emitter.emit('render')
+  })
+}
+
+  function fetchingJob (source) {
+    return function (done) {
+      try {
+        var url = new URL(source)
+        parser.parseURL(url.href, function (err, parsed) {
+          if (err) return console.error(err)
+          parsed.feed.entries.forEach(entry => {
+            entry.date = new Date(entry.isoDate)
+            state.entries.push(entry)
+          })
+
+          done()
+        })
+      } catch (err) {
+        console.info(err)
+      }
+    }
+  }
+})
+
+function sortByDate (a, b) {
+  if (a.date > b.date) return -1
+  if (a.date < b.date) return 1
+  return 0
+}
