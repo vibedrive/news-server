@@ -5,7 +5,7 @@ var cors = require('cors')
 var bodyParser = require('body-parser')
 var parallel = require('run-parallel')
 var parser = require('rss-parser')
-var { URL } = require('url')
+var url = require('url')
 
 const PORT = 5823
 
@@ -13,7 +13,7 @@ var app = express()
 
 app.use(helmet())
 app.use(cors())
-app.use(bodyParser.json({ limit: '50mb' }))
+app.use(bodyParser.json())
 
 app.get('/', async function (req, res) {
   res.status(200).end('cool')
@@ -47,8 +47,8 @@ function fetchingJob (source) {
   var entries = []
   return function (done) {
     try {
-      var url = new URL(source)
-      parser.parseURL(url, function (err, parsed) {
+      var u = new url.URL(source)
+      parser.parseURL(u, function (err, parsed) {
         if (err) return console.error(err)
         parsed.feed.entries.forEach(entry => {
           entry.date = new Date(entry.isoDate)
