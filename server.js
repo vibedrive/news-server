@@ -42,6 +42,7 @@ function fetchFeeds (sources, callback) {
     var entries = feeds
       .reduce((a, b) => a.concat(b), [])
       .sort(sortByDate)
+      .slice(0,100)
     
     console.log(entries.length)
     
@@ -63,6 +64,7 @@ function fetchingJob (source) {
       if (err) return console.error(source, err)
 
       var entries = parsed.feed.entries.map(entry => {
+        delete entry.content
         entry.date = new Date(entry.isoDate)
         return entry
       })
