@@ -40,13 +40,14 @@ function fetchFeeds (sources, callback) {
     var entries = feeds
       .reduce((a, b) => a.concat(b), [])
       .sort(sortByDate)
+    
+    console.log(entries)
 
     callback(entries)
   })
 }
 
 function fetchingJob (source) {
-  var entries = []
   return function (done) {
     try {
       var u = new url.URL(source)
@@ -56,11 +57,11 @@ function fetchingJob (source) {
     }
 
     parser.parseURL(source, function (err, parsed) {
-      if (err) return console.error(err)
-      console.log(source, parsed.feed.entries.length)
-      parsed.feed.entries.forEach(entry => {
+      if (err) return console.error(source, err)
+
+      var entries = parsed.feed.entries.map(entry => {
         entry.date = new Date(entry.isoDate)
-        entries.push(entry)
+        return entry
       })
 
       done(entries)
@@ -69,7 +70,8 @@ function fetchingJob (source) {
 }
 
 function sortByDate (a, b) {
-  if (a.date > b.date) return -1
-  if (a.date < b.date) return 1
+  console.log(Date.UTC(a.date))
+  if (Date.UTC(a.date) > Date.UTC(b.date)) return -1
+  if (Date.UTC(a.date) < Date.UTC(b.date)) return 1
   return 0
 }
