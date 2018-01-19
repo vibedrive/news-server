@@ -5,7 +5,7 @@ var cors = require('cors')
 var bodyParser = require('body-parser')
 var parallel = require('run-parallel')
 var parser = require('rss-parser')
-var { URL } = require('URL')
+var { URL } = require('url')
 
 const PORT = 5823
 
@@ -14,10 +14,12 @@ var app = express()
 app.use(helmet())
 app.use(cors())
 app.use(bodyParser.json({ limit: '50mb' }))
+
 app.get('/', async function (req, res) {
-  res.end('cool')
+  res.status(200).end('cool')
 })
-app.post('/stream', async function (req, res) {
+
+app.post('/entries', async function (req, res) {
   var sources = req.body.sources
 
   fetchFeeds(sources, function (feeds) {
