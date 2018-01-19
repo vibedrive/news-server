@@ -27,7 +27,9 @@ app.post('/entries', async function (req, res) {
   })
 })
 
-http.createServer(app).listen(PORT)
+var listener = app.listen(process.env.PORT, function () {
+  console.log('Your app is listening on port ' + listener.address().port);
+})
 
 console.log('Listening on port', PORT)
 
@@ -55,6 +57,7 @@ function fetchingJob (source) {
 
     parser.parseURL(source, function (err, parsed) {
       if (err) return console.error(err)
+      console.log(source, parsed.feed.entries.length)
       parsed.feed.entries.forEach(entry => {
         entry.date = new Date(entry.isoDate)
         entries.push(entry)
