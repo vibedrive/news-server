@@ -36,12 +36,15 @@ console.log('Listening on port', PORT)
 function fetchFeeds (sources, callback) {
   var jobs = sources.map(fetchingJob)
 
-  parallel(jobs, function (feeds) {
+  parallel(jobs, function (err, feeds) {
+    if (err) console.error(err)
+    console.log('done', feeds.length)
     var entries = feeds
       .reduce((a, b) => a.concat(b), [])
       .sort(sortByDate)
     
-    console.log(entries)
+    console.log(entries.length)
+    
 
     callback(entries)
   })
@@ -52,8 +55,8 @@ function fetchingJob (source) {
     try {
       var u = new url.URL(source)
     } catch (err) {
-      console.info(err)
-      done([])
+      console.error(source, err)
+      done(null, [])
     }
 
     parser.parseURL(source, function (err, parsed) {
@@ -64,14 +67,11 @@ function fetchingJob (source) {
         return entry
       })
 
-      done(entries)
+      done(null, entries)
     })
   }
 }
 
 function sortByDate (a, b) {
-  console.log(Date.UTC(a.date))
-  if (Date.UTC(a.date) > Date.UTC(b.date)) return -1
-  if (Date.UTC(a.date) < Date.UTC(b.date)) return 1
-  return 0
+  return b.date - a.date
 }
